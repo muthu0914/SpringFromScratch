@@ -1,5 +1,7 @@
 package com.qwerty.learn.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -11,24 +13,31 @@ import io.jsonwebtoken.UnsupportedJwtException;
 @Component
 public class JwtValidationUtil {
 
-	 private static final String SECRET_KEY = "secretKey";
-	 
-		public boolean validateAccessToken(String token) {
-			try {
-				Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
-				return true;
-			} catch (ExpiredJwtException ex) {
-				System.out.println("JWT expired" + ex.getMessage());
-			} catch (IllegalArgumentException ex) {
-				System.out.println("Token is null, empty or only whitespace" + ex.getMessage());
-			} catch (MalformedJwtException ex) {
-				System.out.println("JWT is invalid" + ex);
-			} catch (UnsupportedJwtException ex) {
-				System.out.println("JWT is not supported" + ex);
-			} catch (SignatureException ex) {
-				System.out.println("Signature validation failed");
-			}
+	private static final Logger logger = LoggerFactory.getLogger(JwtValidationUtil.class);
 
-			return false;
+	public static final String secretKey = "jwtSecret#17@424";
+	public static final int expireTime = 120000;
+
+	public String getUserNameFromJwtToken(String token) {
+		return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+	}
+
+	public boolean validateAccessToken(String authToken) {
+		try {
+			Jwts.parser().setSigningKey(secretKey).parseClaimsJws(authToken);
+			return true;
+		} catch (SignatureException e) {
+			logger.error("Invalid JWT signature: {}", e.getMessage());
+		} catch (MalformedJwtException e) {
+			logger.error("Invalid JWT token: {}", e.getMessage());
+		} catch (ExpiredJwtException e) {
+			logger.error("JWT token is expired: {}", e.getMessage());
+		} catch (UnsupportedJwtException e) {
+			logger.error("JWT token is unsupported: {}", e.getMessage());
+		} catch (IllegalArgumentException e) {
+			logger.error("JWT claims string is empty: {}", e.getMessage());
 		}
+
+		return false;
+	}
 }

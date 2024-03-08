@@ -14,13 +14,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
 	public static final String HEADER_STRING = "Authorization";
 	public static final String TOKEN_PREFIX = "Bearer ";
-	private static final String SECRET = "secretKey";
+	
+	public static final String secretKey="jwtSecret#17@424";
 
 	public JWTAuthorizationFilter(AuthenticationManager authManager) {
 		super(authManager);
@@ -50,7 +50,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 		if (token != null) {
 			// parse the token.
 
-			String userName = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody().getSubject();
+			String userName = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
 			if (userName != null) {
 				// new arraylist means authorities
 				return new UsernamePasswordAuthenticationToken(userName, null, new ArrayList<>());
